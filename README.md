@@ -12,51 +12,82 @@ Include the neural network model diagram.
 
 ## DESIGN STEPS
 ### STEP 1: 
-
-Write your own steps
+Load and Preprocess Data
 
 ### STEP 2: 
-
+Load Pretrained Model and Modify for Transfer Learning
 
 
 ### STEP 3: 
+Modify the final fully connected layer to match the dataset classes
 
 
 
 ### STEP 4: 
-
+Train the Model
 
 
 ### STEP 5: 
-
+Test the Model and Compute Confusion Matrix & Classification Report
 
 
 ### STEP 6: 
-
+Predict on a Single Image and Display It
 
 
 
 
 ## PROGRAM
 
-### Name:
+### Name: Krishna Prasad S
 
-### Register Number:
+### Register Number: 212223230108
 
 ```python
 # Load Pretrained Model and Modify for Transfer Learning
-
+model = models.vgg19(weights = VGG19_Weights.DEFAULT)
 
 
 # Modify the final fully connected layer to match the dataset classes
-
+model.classifier[-1] = nn.Linear(model.classifier[-1].in_features, 1)
 
 
 # Include the Loss function and optimizer
-
+criterion = nn.BCEWithLogitsLoss()
+optimizer = optim.Adam(model.parameters(), lr = 0.001)
 
 
 # Train the model
+def train_model(model, train_loader,test_loader,num_epochs=100):
+    train_losses = []
+    val_losses = []
+    model.train()
+    for epoch in range(num_epochs):
+        running_loss = 0.0
+        for images, labels in train_loader:
+            images, labels = images.to(device), labels.to(device)
+            optimizer.zero_grad()
+            outputs = model(images)
+            loss = criterion(outputs, labels.unsqueeze(1).float())
+
+            loss.backward()
+            optimizer.step()
+            running_loss += loss.item()
+        train_losses.append(running_loss / len(train_loader))
+
+        # Compute validation loss
+        model.eval()
+        val_loss = 0.0
+        with torch.no_grad():
+            for images, labels in test_loader:
+              images, labels = images.to(device), labels.to(device)
+              outputs = model(images)
+              loss = criterion(outputs, labels.unsqueeze(1).float())
+
+              val_loss += loss.item()
+        val_losses.append(val_loss / len(test_loader))
+        model.train()
+        print(f'Epoch [{epoch+1}/{num_epochs}], Train Loss: {train_losses[-1]:.4f}, Validation Loss: {val_losses[-1]:.4f}')
 
 
 ```
@@ -65,17 +96,19 @@ Write your own steps
 
 ## Training Loss, Validation Loss Vs Iteration Plot
 
-Include your plot here
+![alt text](Output-img/plot.png)
 
 ## Confusion Matrix
 
-Include confusion matrix here
+![alt text](Output-img/conf-mat.png)
 
 ## Classification Report
-Include classification report here
+
+![alt text](Output-img/class-report.png)
 
 ### New Sample Data Prediction
-Include your sample input and output here
+
+![alt text](Output-img/predict.png)
 
 ## RESULT
-Include your result here
+Thus, an image classification model using transfer learning with VGG19 architecture is successfully created.
